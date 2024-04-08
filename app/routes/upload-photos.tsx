@@ -1,6 +1,6 @@
 import { Link } from "@remix-run/react";
 
-export default function Requirements() {
+export default function UploadPhotos() {
   return (
     <>
       <h1>Upload Photos</h1>

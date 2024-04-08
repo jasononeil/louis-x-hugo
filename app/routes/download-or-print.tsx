@@ -1,6 +1,6 @@
 import { Link } from "@remix-run/react";
 
-export default function Requirements() {
+export default function DownloadOrPrint() {
   return (
     <>
       <h1>Print With Us</h1>
