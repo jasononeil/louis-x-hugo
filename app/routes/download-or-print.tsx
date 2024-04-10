@@ -1,4 +1,5 @@
 import { Link } from "@remix-run/react";
+import PageNav from "~/components/PageNav";
 
 export default function DownloadOrPrint() {
   return (
@@ -6,7 +7,11 @@ export default function DownloadOrPrint() {
       <h1>Print With Us</h1>
       <p>Implement print order functionality</p>
       <h2>Download and Print It Yourself</h2>
-      <Link to="/setup-page">Want Another One?</Link>
+      <PageNav
+        backTo="/download-or-print"
+        nextTo="/setup-page"
+        nextText="- Want Another One?"
+      />
     </>
   );
 }

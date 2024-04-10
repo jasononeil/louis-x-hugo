@@ -1,4 +1,5 @@
 import { Link } from "@remix-run/react";
+import PageNav from "~/components/PageNav";
 
 export default function UploadPhotos() {
   return (
@@ -6,7 +7,11 @@ export default function UploadPhotos() {
       <h1>Upload Photos</h1>
       <p>Implement photo upload functionality</p>
       <h2>Preview?</h2>
-      <Link to="/download-or-print">Almost There - Download/Print</Link>
+      <PageNav
+        backTo="/requirements"
+        nextTo="/download-or-print"
+        nextText="Download/Print"
+      />
     </>
   );
 }
