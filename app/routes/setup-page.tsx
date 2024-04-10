@@ -1,6 +1,6 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, Link } from "@remix-run/react";
+import { Form, Link, useLoaderData } from "@remix-run/react";
 import { type Page, page } from "~/store/page";
 import { useStore } from "@nanostores/react";
 import { useEffect } from "react";
@@ -15,7 +15,14 @@ export async function action({ request }: ActionFunctionArgs) {
   return redirect("/requirements");
 }
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const pageData = page.get();
+  return json(pageData);
+}
+
 export default function SetupPage() {
+  const pageData = useLoaderData<typeof loader>();
+  console.log(pageData.background);
   return (
     <>
       <h1>Setup Your Page</h1>
@@ -25,7 +32,7 @@ export default function SetupPage() {
           <input
             name="name"
             type="text"
-            defaultValue="Test"
+            defaultValue={pageData.name}
             className="border border-black border-solid"
           />
         </label>
@@ -42,7 +49,7 @@ export default function SetupPage() {
           <select
             name="weekStart"
             className="border border-black border-solid"
-            defaultValue="sunday"
+            defaultValue={pageData.weekStart}
           >
             <option value="sunday">Sunday</option>
             <option value="monday">Monday</option>
