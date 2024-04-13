@@ -4,12 +4,24 @@ import { page } from "~/store/page";
 
 export async function action({ request }: ActionFunctionArgs) {
   const body = await request.formData();
-  const name = await body.get("name");
-  const background = await body.get("background");
-  const weekStart = await body.get("weekStart");
-  const pageData = { name, background, weekStart };
+  const pageData = {
+    name: getStringFromFormData(body, "name"),
+    background: undefined, // TODO: support files
+    weekStart: getStringFromFormData(body, "weekStart"),
+  };
   page.set(pageData);
   return redirect("/requirements");
+}
+
+function getStringFromFormData(
+  body: FormData,
+  field: string
+): string | undefined {
+  const value = body.get(field);
+  if (typeof value === "string") {
+    return value;
+  }
+  // If the value was `null` or a `File` don't return anything
 }
 
 export async function loader() {

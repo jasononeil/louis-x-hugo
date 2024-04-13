@@ -1,17 +1,24 @@
-import { persistentMap } from "@nanostores/persistent";
+import { persistentAtom } from "@nanostores/persistent";
 
 export type Page = {
-  name: string;
-  background: string;
-  weekStart: string;
+  name?: string;
+  background?: string;
+  weekStart?: string;
 };
 
-export const page = persistentMap<Page>("page:", {
-  name: "",
-  background: "",
-  weekStart: "sunday",
-});
+export const page = persistentAtom<Page>(
+  "page:",
+  {
+    name: "",
+    background: "",
+    weekStart: "sunday",
+  },
+  {
+    encode: JSON.stringify,
+    decode: JSON.parse,
+  }
+);
 
-page.listen((old, current, changed) => {
-  console.log("In store listener", old, current, changed);
+page.listen((value, oldValue) => {
+  console.log("In store listener", value, oldValue);
 });
