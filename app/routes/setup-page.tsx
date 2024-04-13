@@ -55,7 +55,10 @@ export default function SetupPage() {
             <option value="monday">Monday</option>
           </select>
         </label>
-        <button type="submit" className="border-solid border-black border w-fit p-2">
+        <button
+          type="submit"
+          className="border-solid border-black border w-fit p-2"
+        >
           Submit
         </button>
         {/*On success should redirect...*/}
