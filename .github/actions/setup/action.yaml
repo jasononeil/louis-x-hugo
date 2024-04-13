@@ -1,0 +1,24 @@
+# this is composite workflow that gets the repo ready for actions
+# for docs how composite workflows work see https://wallis.dev/blog/composite-github-actions
+
+name: Setup repository
+description: Setups this repository to allow efficient run of various github actions
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v3
+      name: Install pnpm
+      id: pnpm-install
+      with:
+        run_install: false
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version-file: .nvmrc
+        registry-url: https://npm.pkg.github.com
+        cache: "pnpm"
+
+    - name: pnpm install
+      shell: bash
+      run: pnpm install --frozen-lockfile
