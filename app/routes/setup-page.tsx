@@ -1,9 +1,6 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, Link, useLoaderData } from "@remix-run/react";
-import { type Page, page } from "~/store/page";
-import { useStore } from "@nanostores/react";
-import { useEffect } from "react";
+import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
+import { Form, useLoaderData } from "@remix-run/react";
+import { page } from "~/store/page";
 
 export async function action({ request }: ActionFunctionArgs) {
   const body = await request.formData();
@@ -15,7 +12,7 @@ export async function action({ request }: ActionFunctionArgs) {
   return redirect("/requirements");
 }
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader() {
   const pageData = page.get();
   return json(pageData);
 }

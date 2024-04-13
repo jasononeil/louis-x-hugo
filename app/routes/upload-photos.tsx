@@ -1,4 +1,3 @@
-import { Link } from "@remix-run/react";
 import PageNav from "~/components/PageNav";
 
 export default function UploadPhotos() {
