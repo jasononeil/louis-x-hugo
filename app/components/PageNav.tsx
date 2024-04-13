@@ -6,7 +6,12 @@ export interface PageNavProps {
   nextText?: string;
 }
 
-export default function PageNav({ backTo, nextTo, backText, nextText }: PageNavProps) {
+export default function PageNav({
+  backTo,
+  nextTo,
+  backText,
+  nextText,
+}: PageNavProps) {
   return (
     <div className="flex">
       <Link to={backTo} className="border border-solid border-black p-1 mx-1">
