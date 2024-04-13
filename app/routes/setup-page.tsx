@@ -7,7 +7,11 @@ export default function SetupPage() {
       <Form className="flex flex-col space-y-2 mx-6 mt-2">
         <label>
           Page Name:
-          <input name="name" type="text" className="border border-black border-solid" />
+          <input
+            name="name"
+            type="text"
+            className="border border-black border-solid"
+          />
         </label>
         <label>
           Background:
@@ -30,7 +34,9 @@ export default function SetupPage() {
         </label>
         <button type="submit">Submit</button>
         {/*On success should redirect...*/}
-        <Link to="/requirements">Continue (temp link until Submit button redirects)</Link>
+        <Link to="/requirements">
+          Continue (temp link until Submit button redirects)
+        </Link>
       </Form>
     </>
   );
