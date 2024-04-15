@@ -1,8 +1,11 @@
-import { ActionFunctionArgs, json, redirect } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
-import { page } from "~/store/page";
+import {
+  ClientActionFunctionArgs,
+  Form,
+  useLoaderData,
+} from "@remix-run/react";
+import { page } from "~/store/page.client";
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function clientAction({ request }: ClientActionFunctionArgs) {
   const body = await request.formData();
   const pageData = {
     name: getStringFromFormData(body, "name"),
@@ -10,7 +13,12 @@ export async function action({ request }: ActionFunctionArgs) {
     weekStart: getStringFromFormData(body, "weekStart"),
   };
   page.set(pageData);
-  return redirect("/requirements");
+  return new Response(null, {
+    status: 303,
+    headers: {
+      Location: "/requirements",
+    },
+  });
 }
 
 function getStringFromFormData(
@@ -24,14 +32,17 @@ function getStringFromFormData(
   // If the value was `null` or a `File` don't return anything
 }
 
-export async function loader() {
+export async function clientLoader() {
   const pageData = page.get();
-  return json(pageData);
+  return pageData;
+}
+
+export function HydrateFallback() {
+  return <p>Loading...</p>;
 }
 
 export default function SetupPage() {
-  const pageData = useLoaderData<typeof loader>();
-  console.log(pageData.background);
+  const pageData = useLoaderData<typeof clientLoader>();
   return (
     <>
       <h1>Setup Your Page</h1>
