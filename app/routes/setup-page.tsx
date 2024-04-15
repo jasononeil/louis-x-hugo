@@ -2,6 +2,7 @@ import {
   ClientActionFunctionArgs,
   Form,
   useLoaderData,
+  redirect,
 } from "@remix-run/react";
 import { page } from "~/store/page.client";
 
@@ -13,12 +14,7 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
     weekStart: getStringFromFormData(body, "weekStart"),
   };
   page.set(pageData);
-  return new Response(null, {
-    status: 303,
-    headers: {
-      Location: "/requirements",
-    },
-  });
+  return redirect("/requirements");
 }
 
 function getStringFromFormData(
