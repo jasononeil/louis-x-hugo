@@ -15,10 +15,12 @@
   "dependencies": {
     "@nanostores/persistent": "^0.10.1",
     "@nanostores/react": "^0.7.2",
+    "@playwright/browser-chromium": "^1.43.1",
     "@remix-run/node": "^2.8.1",
     "@remix-run/react": "^2.8.1",
     "@remix-run/serve": "^2.8.1",
     "isbot": "^4.1.0",
+    "playwright": "^1.43.1",
     "prettier": "^3.2.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
