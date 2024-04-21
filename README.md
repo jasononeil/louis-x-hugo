@@ -22,6 +22,8 @@ Run the Vite dev server:
 pnpm run dev
 ```
 
+Includes [@nanostores/persist](https://github.com/nanostores/persistent) including it's [React integration](https://github.com/nanostores/react) for state management.
+
 ## Deployment
 
 First, build your app for production:
