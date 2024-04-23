@@ -36,8 +36,12 @@ function getStringFromFormData(
   // If the value was `null` or a `File` don't return anything
 }
 
+type ServerData = {
+  filesInBucket: string[];
+};
+
 /** The server side loader */
-export async function loader() {
+export async function loader(): Promise<ServerData> {
   const CLOUDFLARE_ACCOUNT_ID = "01ff6cd586444f2c0adbd5ffcac8a764";
   const BUCKET = "louis-x-hugo-uploads";
 
@@ -64,12 +68,12 @@ export async function loader() {
 /** The client side loader, which runs after hydrate. Data from the serverLoader (`loader()`) is also available. */
 export async function clientLoader({ serverLoader }: ClientLoaderFunctionArgs) {
   const pageData = page.get();
-  const serverData = await serverLoader();
+  const serverData: ServerData = await serverLoader();
   console.log(
     "The server can make authenticated request to R2, like checking the files in the bucket:",
     serverData
   );
-  return pageData;
+  return { ...pageData, images: serverData.filesInBucket };
 }
 clientLoader.hydrate = true;
 
@@ -119,6 +123,13 @@ export default function SetupPage() {
         </button>
         {/*On success should redirect...*/}
       </Form>
+      <ul>
+        {pageData.images.map((imageUrl, i) => (
+          <li key={i}>
+            <img src={imageUrl} alt="" />
+          </li>
+        ))}
+      </ul>
     </>
   );
 }
