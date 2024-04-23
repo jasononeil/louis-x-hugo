@@ -3,6 +3,7 @@ import {
   Form,
   useLoaderData,
   redirect,
+  ClientLoaderFunctionArgs,
 } from "@remix-run/react";
 import { page } from "~/store/page.client";
 
@@ -28,10 +29,24 @@ function getStringFromFormData(
   // If the value was `null` or a `File` don't return anything
 }
 
-export async function clientLoader() {
+/** The server side loader */
+export async function loader() {
+  return {
+    SECRET: process.env.SECRET,
+  };
+}
+
+/** The client side loader, which runs after hydrate. Data from the serverLoader (`loader()`) is also available. */
+export async function clientLoader({ serverLoader }: ClientLoaderFunctionArgs) {
   const pageData = page.get();
+  const serverData = await serverLoader();
+  console.log(
+    "The server knew a secret, which it's passing to the client",
+    serverData
+  );
   return pageData;
 }
+clientLoader.hydrate = true;
 
 export function HydrateFallback() {
   return <p>Loading...</p>;
