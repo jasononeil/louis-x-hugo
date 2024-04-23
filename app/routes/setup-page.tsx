@@ -5,6 +5,7 @@ import {
   redirect,
   ClientLoaderFunctionArgs,
 } from "@remix-run/react";
+import S3 from "aws-sdk/clients/s3.js";
 import { page } from "~/store/page.client";
 
 export async function clientAction({ request }: ClientActionFunctionArgs) {
@@ -31,8 +32,19 @@ function getStringFromFormData(
 
 /** The server side loader */
 export async function loader() {
+  const CLOUDFLARE_ACCOUNT_ID = "01ff6cd586444f2c0adbd5ffcac8a764";
+  const { AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY } = process.env;
+  const s3 = new S3({
+    endpoint: `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    accessKeyId: `${AWS_ACCESS_KEY_ID}`,
+    secretAccessKey: `${AWS_SECRET_ACCESS_KEY}`,
+    signatureVersion: "v4",
+  });
+  const response = await s3
+    .listObjects({ Bucket: "louis-x-hugo-uploads" })
+    .promise();
   return {
-    SECRET: process.env.SECRET,
+    filesInBucket: response.Contents?.map((object) => object.Key),
   };
 }
 
@@ -41,7 +53,7 @@ export async function clientLoader({ serverLoader }: ClientLoaderFunctionArgs) {
   const pageData = page.get();
   const serverData = await serverLoader();
   console.log(
-    "The server knew a secret, which it's passing to the client",
+    "The server can make authenticated request to R2, like checking the files in the bucket:",
     serverData
   );
   return pageData;
