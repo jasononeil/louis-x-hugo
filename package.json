@@ -15,6 +15,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.556.0",
     "@aws-sdk/credential-providers": "^3.556.0",
+    "@aws-sdk/s3-request-presigner": "^3.556.0",
     "@nanostores/persistent": "^0.10.1",
     "@nanostores/react": "^0.7.2",
     "@playwright/browser-chromium": "^1.43.1",

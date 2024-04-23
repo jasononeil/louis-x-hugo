@@ -5,7 +5,12 @@ import {
   redirect,
   ClientLoaderFunctionArgs,
 } from "@remix-run/react";
-import { ListObjectsCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  ListObjectsCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { fromEnv } from "@aws-sdk/credential-providers";
 import { page } from "~/store/page.client";
 
@@ -34,16 +39,25 @@ function getStringFromFormData(
 /** The server side loader */
 export async function loader() {
   const CLOUDFLARE_ACCOUNT_ID = "01ff6cd586444f2c0adbd5ffcac8a764";
+  const BUCKET = "louis-x-hugo-uploads";
+
   const s3Client = new S3Client({
     credentials: fromEnv(),
     endpoint: `https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
     region: "auto",
   });
   const response = await s3Client.send(
-    new ListObjectsCommand({ Bucket: "louis-x-hugo-uploads" })
+    new ListObjectsCommand({ Bucket: BUCKET })
+  );
+  const files = response.Contents || [];
+  const presignedUrls = Promise.all(
+    files.map(async (object) => {
+      const command = new GetObjectCommand({ Bucket: BUCKET, Key: object.Key });
+      return await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    })
   );
   return {
-    filesInBucket: response.Contents?.map((object) => object.Key),
+    filesInBucket: await presignedUrls,
   };
 }
 
