@@ -5,7 +5,7 @@ import {
   redirect,
   ClientLoaderFunctionArgs,
 } from "@remix-run/react";
-import { getSignedUrlsForItemsInBucket } from "~/server/s3.server";
+import { getSignedUrlsForItemsInBucket } from "~/.server/s3";
 import { page } from "~/store/page.client";
 
 export async function clientAction({ request }: ClientActionFunctionArgs) {
