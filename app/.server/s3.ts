@@ -1,6 +1,7 @@
 import {
   GetObjectCommand,
   ListObjectsCommand,
+  PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -31,4 +32,12 @@ export async function getSignedUrlsForItemsInBucket(): Promise<string[]> {
     })
   );
   return presignedUrls;
+}
+
+export async function getSignedUrlForPosting(key) {
+  const command = new PutObjectCommand({ Bucket: BUCKET, Key: key });
+  const presignedPost = await getSignedUrl(s3Client, command, {
+    expiresIn: 3600,
+  });
+  return presignedPost;
 }

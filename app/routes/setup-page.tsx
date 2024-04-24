@@ -5,7 +5,10 @@ import {
   redirect,
   ClientLoaderFunctionArgs,
 } from "@remix-run/react";
-import { getSignedUrlsForItemsInBucket } from "~/.server/s3";
+import {
+  getSignedUrlsForItemsInBucket,
+  getSignedUrlForPosting,
+} from "~/.server/s3";
 import { page } from "~/store/page.client";
 
 export async function clientAction({ request }: ClientActionFunctionArgs) {
@@ -32,12 +35,14 @@ function getStringFromFormData(
 
 type ServerData = {
   filesInBucket: string[];
+  postURL?: any;
 };
 
 /** The server side loader */
 export async function loader(): Promise<ServerData> {
   return {
     filesInBucket: await getSignedUrlsForItemsInBucket(),
+    postURL: await getSignedUrlForPosting("202402portrait.jpg"),
   };
 }
 
@@ -49,7 +54,11 @@ export async function clientLoader({ serverLoader }: ClientLoaderFunctionArgs) {
     "The server can make authenticated request to R2, like checking the files in the bucket:",
     serverData
   );
-  return { ...pageData, images: serverData.filesInBucket };
+  return {
+    ...pageData,
+    images: serverData.filesInBucket,
+    presignedPost: serverData?.postURL,
+  };
 }
 clientLoader.hydrate = true;
 
@@ -59,6 +68,8 @@ export function HydrateFallback() {
 
 export default function SetupPage() {
   const pageData = useLoaderData<typeof clientLoader>();
+  const url = pageData.presignedPost;
+  console.log(pageData);
   return (
     <>
       <h1>Setup Your Page</h1>
@@ -99,6 +110,11 @@ export default function SetupPage() {
         </button>
         {/*On success should redirect...*/}
       </Form>
+      <form action={url} method="PUT" encType="multipart/form-data">
+        File:
+        <input type="file" name="file" /> <br />
+        <button>Upload to Amazon S3</button>
+      </form>
       <ul>
         {pageData.images.map((imageUrl, i) => (
           <li key={i}>
