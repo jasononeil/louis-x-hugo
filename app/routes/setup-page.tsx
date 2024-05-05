@@ -51,10 +51,6 @@ export async function loader(): Promise<ServerData> {
 export async function clientLoader({ serverLoader }: ClientLoaderFunctionArgs) {
   const pageData = page.get();
   const serverData: ServerData = await serverLoader();
-  console.log(
-    "The server can make authenticated request to R2, like checking the files in the bucket:",
-    serverData
-  );
   return {
     ...pageData,
     images: serverData.filesInBucket,
@@ -69,8 +65,6 @@ export function HydrateFallback() {
 
 export default function SetupPage() {
   const pageData = useLoaderData<typeof clientLoader>();
-  const url = pageData.presignedPost;
-  console.log(pageData);
   return (
     <>
       <h1>Setup Your Page</h1>
@@ -131,35 +125,29 @@ function ImageUploadForm({ url }: { url: string }) {
     const files = fileInputRef.current?.files;
     if (files && files[0]) {
       const file = files[0];
-      console.log("Uploading file...", file);
       const formData = new FormData();
       formData.append("file", file);
-      console.log(formData);
       try {
-        // You can write the URL of your server or any other endpoint used for file upload
         const result = await fetch(url, {
           method: "PUT",
-          headers: {
-            "Content-Type": "image/jpeg",
-          },
+          headers: { "Content-Type": file.type },
           body: file,
         });
 
-        const data = await result.json();
-
-        console.log(data);
+        if (result.ok) {
+          console.log("Upload successful");
+        } else {
+          throw new Error(
+            `Upload failed: ${result.status} ${result.statusText}`
+          );
+        }
       } catch (error) {
         console.error(error);
       }
     }
   }
   return (
-    <form
-      className="flex flex-col space-y-2 mx-6 mt-2"
-      method="PUT"
-      encType="multipart/form-data"
-      onSubmit={handleUpload}
-    >
+    <form className="flex flex-col space-y-2 mx-6 mt-2" onSubmit={handleUpload}>
       <input type="file" ref={fileInputRef} accept="image/*" />
       <button
         type="submit"
