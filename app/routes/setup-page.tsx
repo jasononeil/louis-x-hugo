@@ -35,7 +35,7 @@ function getStringFromFormData(
 
 type ServerData = {
   filesInBucket: string[];
-  postURL?: any;
+  postURL: string;
 };
 
 /** The server side loader */

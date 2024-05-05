@@ -1,6 +1,5 @@
 import {
   ClientActionFunctionArgs,
-  Form,
   useLoaderData,
   redirect,
   ClientLoaderFunctionArgs,
@@ -19,7 +18,7 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
 
 type ServerData = {
   filesInBucket: string[];
-  postURL?: any;
+  postURL: string;
 };
 
 /** The server side loader */
@@ -52,7 +51,7 @@ export default function SetupPage() {
   const [file, setFile] = useState<File | null>(null);
   const data = useLoaderData<typeof clientLoader>();
   const url = data.presignedPost;
-  function handleChange(e) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files) {
       console.log(e.target.files);
       const nextFile = e.target.files[0];
@@ -60,7 +59,7 @@ export default function SetupPage() {
       console.log(nextFile);
     }
   }
-  async function handleUpload(e) {
+  async function handleUpload(e: React.FormEvent) {
     e.preventDefault();
     if (file) {
       console.log("Uploading file...");
@@ -94,10 +93,14 @@ export default function SetupPage() {
         encType="multipart/form-data"
         onSubmit={handleUpload}
       >
-        <input type="file" name="file" onChange={handleChange} />
+        <input
+          type="file"
+          name="file"
+          accept="image/*"
+          onChange={handleChange}
+        />
         <button
           type="submit"
-          accept="image/*"
           className="border-solid border-black border w-fit p-2"
         >
           Upload
