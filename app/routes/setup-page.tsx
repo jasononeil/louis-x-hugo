@@ -6,11 +6,9 @@ import {
   ClientLoaderFunctionArgs,
 } from "@remix-run/react";
 import { useRef } from "react";
-import {
-  getSignedUrlsForItemsInBucket,
-  getSignedUrlForPosting,
-} from "~/.server/s3";
+import { getSignedUrlsForItemsInBucket } from "~/.server/s3";
 import { page } from "~/store/page.client";
+import { getUploadUrl } from "./get-upload-url";
 
 export async function clientAction({ request }: ClientActionFunctionArgs) {
   const body = await request.formData();
@@ -36,14 +34,12 @@ function getStringFromFormData(
 
 type ServerData = {
   filesInBucket: string[];
-  postURL: string;
 };
 
 /** The server side loader */
 export async function loader(): Promise<ServerData> {
   return {
     filesInBucket: await getSignedUrlsForItemsInBucket(),
-    postURL: await getSignedUrlForPosting("202402portrait.jpg"),
   };
 }
 
@@ -54,7 +50,6 @@ export async function clientLoader({ serverLoader }: ClientLoaderFunctionArgs) {
   return {
     ...pageData,
     images: serverData.filesInBucket,
-    presignedPost: serverData.postURL,
   };
 }
 clientLoader.hydrate = true;
@@ -105,7 +100,7 @@ export default function SetupPage() {
         </button>
         {/*On success should redirect...*/}
       </Form>
-      <ImageUploadForm url={pageData.presignedPost} />
+      <ImageUploadForm />
       <ul>
         {pageData.images.map((imageUrl, i) => (
           <li key={i}>
@@ -117,7 +112,7 @@ export default function SetupPage() {
   );
 }
 
-function ImageUploadForm({ url }: { url: string }) {
+function ImageUploadForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleUpload(e: React.FormEvent<HTMLFormElement>) {
@@ -128,7 +123,12 @@ function ImageUploadForm({ url }: { url: string }) {
       const formData = new FormData();
       formData.append("file", file);
       try {
-        const result = await fetch(url, {
+        const { preSignedUploadUrl } = await getUploadUrl({
+          project: "upload-test",
+          filename: file.name,
+        });
+
+        const result = await fetch(preSignedUploadUrl, {
           method: "PUT",
           headers: { "Content-Type": file.type },
           body: file,
