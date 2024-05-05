@@ -14,7 +14,7 @@ export async function clientAction({ request }: ClientActionFunctionArgs) {
   const body = await request.formData();
   const pageData = {
     name: getStringFromFormData(body, "name"),
-    background: undefined, // TODO: support files
+    background: getStringFromFormData(body, "background"),
     weekStart: getStringFromFormData(body, "weekStart"),
   };
   page.set(pageData);
