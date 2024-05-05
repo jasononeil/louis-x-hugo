@@ -34,6 +34,11 @@ export async function getSignedUrlsForItemsInBucket(): Promise<string[]> {
   return presignedUrls;
 }
 
+export async function getSignedUrlForItem(key: string): Promise<string> {
+  const command = new GetObjectCommand({ Bucket: BUCKET, Key: key });
+  return await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+}
+
 export async function getSignedUrlForPosting(key: string) {
   const command = new PutObjectCommand({ Bucket: BUCKET, Key: key });
   const presignedPost = await getSignedUrl(s3Client, command, {

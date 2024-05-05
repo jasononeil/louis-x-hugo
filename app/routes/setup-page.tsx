@@ -5,7 +5,7 @@ import {
   redirect,
   ClientLoaderFunctionArgs,
 } from "@remix-run/react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { getSignedUrlsForItemsInBucket } from "~/.server/s3";
 import { page } from "~/store/page.client";
 import { getUploadUrl } from "./get-upload-url";
@@ -73,14 +73,7 @@ export default function SetupPage() {
             className="border border-black border-solid"
           />
         </label>
-        <label>
-          Background:
-          <input
-            name="background"
-            type="file"
-            className="border border-black border-solid"
-          />
-        </label>
+        <ImageUploadField label="Background" name="background" />
         <label>
           Week Start:
           <select
@@ -100,7 +93,6 @@ export default function SetupPage() {
         </button>
         {/*On success should redirect...*/}
       </Form>
-      <ImageUploadForm />
       <ul>
         {pageData.images.map((imageUrl, i) => (
           <li key={i}>
@@ -112,10 +104,12 @@ export default function SetupPage() {
   );
 }
 
-function ImageUploadForm() {
+function ImageUploadField({ label, name }: { label: string; name: string }) {
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [imageKey, setImageKey] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  async function handleUpload(e: React.FormEvent<HTMLFormElement>) {
+  async function handleUpload(e: React.FormEvent) {
     e.preventDefault();
     const files = fileInputRef.current?.files;
     if (files && files[0]) {
@@ -123,10 +117,12 @@ function ImageUploadForm() {
       const formData = new FormData();
       formData.append("file", file);
       try {
-        const { preSignedUploadUrl } = await getUploadUrl({
-          project: "upload-test",
-          filename: file.name,
-        });
+        const { preSignedUploadUrl, preSignedGetUrl, key } = await getUploadUrl(
+          {
+            project: "upload-test",
+            filename: file.name,
+          }
+        );
 
         const result = await fetch(preSignedUploadUrl, {
           method: "PUT",
@@ -135,6 +131,8 @@ function ImageUploadForm() {
         });
 
         if (result.ok) {
+          setImageKey(key);
+          setImageSrc(preSignedGetUrl);
           console.log("Upload successful");
         } else {
           throw new Error(
@@ -146,16 +144,27 @@ function ImageUploadForm() {
       }
     }
   }
+
   return (
-    <form className="flex flex-col space-y-2 mx-6 mt-2" onSubmit={handleUpload}>
-      <input type="file" ref={fileInputRef} accept="image/*" />
-      <button
-        type="submit"
-        className="border-solid border-black border w-fit p-2"
-      >
-        Upload
-      </button>
-      {/*On success should redirect...*/}
-    </form>
+    <label>
+      {label}:
+      {imageSrc && imageKey ? (
+        <>
+          <img src={imageSrc} alt="User uploaded background" />
+          <input type="hidden" name={name} value={imageKey} />
+        </>
+      ) : (
+        <>
+          <input type="file" ref={fileInputRef} accept="image/*" />
+          <button
+            type="submit"
+            className="border-solid border-black border w-fit p-2"
+            onClick={handleUpload}
+          >
+            Upload
+          </button>
+        </>
+      )}
+    </label>
   );
 }

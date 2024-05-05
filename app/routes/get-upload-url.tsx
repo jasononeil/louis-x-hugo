@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, TypedResponse, json } from "@remix-run/node";
-import { getSignedUrlForPosting } from "~/.server/s3";
+import { getSignedUrlForItem, getSignedUrlForPosting } from "~/.server/s3";
 
 /**
  * A simple POST route action to create a pre-signed URL for file uploads.
@@ -19,15 +19,18 @@ export async function action({
       "Please set `filename` query parameter to filename for this upload"
     );
   }
+  const key = `uploads/${project}/${filename}`;
   return json({
-    preSignedUploadUrl: await getSignedUrlForPosting(
-      `uploads/${project}/${filename}`
-    ),
+    key,
+    preSignedUploadUrl: await getSignedUrlForPosting(key),
+    preSignedGetUrl: await getSignedUrlForItem(key),
   });
 }
 
 type GetUploadUrlResult = {
+  key: string;
   preSignedUploadUrl: string;
+  preSignedGetUrl: string;
 };
 
 export async function getUploadUrl({
