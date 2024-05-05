@@ -5,10 +5,9 @@ import {
   redirect,
   ClientLoaderFunctionArgs,
 } from "@remix-run/react";
-import { useRef, useState } from "react";
 import { getSignedUrlsForItemsInBucket } from "~/.server/s3";
 import { page } from "~/store/page.client";
-import { getUploadUrl } from "./get-upload-url";
+import { ImageUploadField } from "~/components/ImageUploadField";
 
 export async function clientAction({ request }: ClientActionFunctionArgs) {
   const body = await request.formData();
@@ -101,70 +100,5 @@ export default function SetupPage() {
         ))}
       </ul>
     </>
-  );
-}
-
-function ImageUploadField({ label, name }: { label: string; name: string }) {
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [imageKey, setImageKey] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  async function handleUpload(e: React.FormEvent) {
-    e.preventDefault();
-    const files = fileInputRef.current?.files;
-    if (files && files[0]) {
-      const file = files[0];
-      const formData = new FormData();
-      formData.append("file", file);
-      try {
-        const { preSignedUploadUrl, preSignedGetUrl, key } = await getUploadUrl(
-          {
-            project: "upload-test",
-            filename: file.name,
-          }
-        );
-
-        const result = await fetch(preSignedUploadUrl, {
-          method: "PUT",
-          headers: { "Content-Type": file.type },
-          body: file,
-        });
-
-        if (result.ok) {
-          setImageKey(key);
-          setImageSrc(preSignedGetUrl);
-          console.log("Upload successful");
-        } else {
-          throw new Error(
-            `Upload failed: ${result.status} ${result.statusText}`
-          );
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  }
-
-  return (
-    <label>
-      {label}:
-      {imageSrc && imageKey ? (
-        <>
-          <img src={imageSrc} alt="User uploaded background" />
-          <input type="hidden" name={name} value={imageKey} />
-        </>
-      ) : (
-        <>
-          <input type="file" ref={fileInputRef} accept="image/*" />
-          <button
-            type="submit"
-            className="border-solid border-black border w-fit p-2"
-            onClick={handleUpload}
-          >
-            Upload
-          </button>
-        </>
-      )}
-    </label>
   );
 }
