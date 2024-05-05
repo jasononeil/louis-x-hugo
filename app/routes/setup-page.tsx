@@ -5,7 +5,7 @@ import {
   redirect,
   ClientLoaderFunctionArgs,
 } from "@remix-run/react";
-import { useState } from "react";
+import { useRef } from "react";
 import {
   getSignedUrlsForItemsInBucket,
   getSignedUrlForPosting,
@@ -124,19 +124,14 @@ export default function SetupPage() {
 }
 
 function ImageUploadForm({ url }: { url: string }) {
-  const [file, setFile] = useState<File | null>(null);
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files) {
-      console.log(e.target.files);
-      const nextFile = e.target.files[0];
-      setFile(nextFile);
-      console.log(nextFile);
-    }
-  }
-  async function handleUpload(e: React.FormEvent) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleUpload(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (file) {
-      console.log("Uploading file...");
+    const files = fileInputRef.current?.files;
+    if (files && files[0]) {
+      const file = files[0];
+      console.log("Uploading file...", file);
       const formData = new FormData();
       formData.append("file", file);
       console.log(formData);
@@ -165,7 +160,7 @@ function ImageUploadForm({ url }: { url: string }) {
       encType="multipart/form-data"
       onSubmit={handleUpload}
     >
-      <input type="file" name="file" accept="image/*" onChange={handleChange} />
+      <input type="file" ref={fileInputRef} accept="image/*" />
       <button
         type="submit"
         className="border-solid border-black border w-fit p-2"
