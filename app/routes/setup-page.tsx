@@ -5,6 +5,7 @@ import {
   redirect,
   ClientLoaderFunctionArgs,
 } from "@remix-run/react";
+import { useState } from "react";
 import {
   getSignedUrlsForItemsInBucket,
   getSignedUrlForPosting,
@@ -57,7 +58,7 @@ export async function clientLoader({ serverLoader }: ClientLoaderFunctionArgs) {
   return {
     ...pageData,
     images: serverData.filesInBucket,
-    presignedPost: serverData?.postURL,
+    presignedPost: serverData.postURL,
   };
 }
 clientLoader.hydrate = true;
@@ -110,11 +111,7 @@ export default function SetupPage() {
         </button>
         {/*On success should redirect...*/}
       </Form>
-      <form action={url} method="PUT" encType="multipart/form-data">
-        File:
-        <input type="file" name="file" /> <br />
-        <button>Upload to Amazon S3</button>
-      </form>
+      <ImageUploadForm url={pageData.presignedPost} />
       <ul>
         {pageData.images.map((imageUrl, i) => (
           <li key={i}>
@@ -123,5 +120,59 @@ export default function SetupPage() {
         ))}
       </ul>
     </>
+  );
+}
+
+function ImageUploadForm({ url }: { url: string }) {
+  const [file, setFile] = useState<File | null>(null);
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.files) {
+      console.log(e.target.files);
+      const nextFile = e.target.files[0];
+      setFile(nextFile);
+      console.log(nextFile);
+    }
+  }
+  async function handleUpload(e: React.FormEvent) {
+    e.preventDefault();
+    if (file) {
+      console.log("Uploading file...");
+      const formData = new FormData();
+      formData.append("file", file);
+      console.log(formData);
+      try {
+        // You can write the URL of your server or any other endpoint used for file upload
+        const result = await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "image/jpeg",
+          },
+          body: file,
+        });
+
+        const data = await result.json();
+
+        console.log(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
+  return (
+    <form
+      className="flex flex-col space-y-2 mx-6 mt-2"
+      method="PUT"
+      encType="multipart/form-data"
+      onSubmit={handleUpload}
+    >
+      <input type="file" name="file" accept="image/*" onChange={handleChange} />
+      <button
+        type="submit"
+        className="border-solid border-black border w-fit p-2"
+      >
+        Upload
+      </button>
+      {/*On success should redirect...*/}
+    </form>
   );
 }
