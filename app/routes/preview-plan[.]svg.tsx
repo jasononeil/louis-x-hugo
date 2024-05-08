@@ -35,7 +35,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     .replace("{{day5}}", days[4])
     .replace("{{day6}}", days[5])
     .replace("{{day7}}", days[6])
-    .replace("{{bgImage}}", bgImage);
+    .replace("{{bgImage}}", bgImage.replace(/&/g, "&amp;"));
   return new Response(svg, {
     status: 200,
     headers: {

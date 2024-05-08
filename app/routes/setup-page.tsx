@@ -3,14 +3,17 @@ import {
   Form,
   useLoaderData,
   redirect,
+  ClientLoaderFunctionArgs,
 } from "@remix-run/react";
+import { getSignedUrlsForItemsInBucket } from "~/.server/s3";
 import { page } from "~/store/page.client";
+import { ImageUploadField } from "~/components/ImageUploadField";
 
 export async function clientAction({ request }: ClientActionFunctionArgs) {
   const body = await request.formData();
   const pageData = {
     name: getStringFromFormData(body, "name"),
-    background: undefined, // TODO: support files
+    background: getStringFromFormData(body, "background"),
     weekStart: getStringFromFormData(body, "weekStart"),
   };
   page.set(pageData);
@@ -28,10 +31,27 @@ function getStringFromFormData(
   // If the value was `null` or a `File` don't return anything
 }
 
-export async function clientLoader() {
-  const pageData = page.get();
-  return pageData;
+type ServerData = {
+  filesInBucket: string[];
+};
+
+/** The server side loader */
+export async function loader(): Promise<ServerData> {
+  return {
+    filesInBucket: await getSignedUrlsForItemsInBucket(),
+  };
 }
+
+/** The client side loader, which runs after hydrate. Data from the serverLoader (`loader()`) is also available. */
+export async function clientLoader({ serverLoader }: ClientLoaderFunctionArgs) {
+  const pageData = page.get();
+  const serverData: ServerData = await serverLoader();
+  return {
+    ...pageData,
+    images: serverData.filesInBucket,
+  };
+}
+clientLoader.hydrate = true;
 
 export function HydrateFallback() {
   return <p>Loading...</p>;
@@ -52,14 +72,7 @@ export default function SetupPage() {
             className="border border-black border-solid"
           />
         </label>
-        <label>
-          Background:
-          <input
-            name="background"
-            type="file"
-            className="border border-black border-solid"
-          />
-        </label>
+        <ImageUploadField label="Background" name="background" />
         <label>
           Week Start:
           <select
@@ -79,6 +92,13 @@ export default function SetupPage() {
         </button>
         {/*On success should redirect...*/}
       </Form>
+      <ul>
+        {pageData.images.map((imageUrl, i) => (
+          <li key={i}>
+            <img src={imageUrl} alt="" />
+          </li>
+        ))}
+      </ul>
     </>
   );
 }
