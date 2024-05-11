@@ -62,7 +62,7 @@ export default function SetupPage() {
   return (
     <>
       <h1>Setup Your Page</h1>
-      <Form className="flex flex-col space-y-2 mx-6 mt-2" method="POST">
+      <Form className="flex flex-col space-y-2 mt-2" method="POST">
         <label>
           Page Name:
           <input
@@ -72,7 +72,6 @@ export default function SetupPage() {
             className="border border-black border-solid"
           />
         </label>
-        <ImageUploadField label="Background" name="background" />
         <label>
           Week Start:
           <select
@@ -84,6 +83,7 @@ export default function SetupPage() {
             <option value="monday">Monday</option>
           </select>
         </label>
+        <ImageUploadField label="Background" name="background" />
         <button
           type="submit"
           className="border-solid border-black border w-fit p-2"
@@ -92,13 +92,6 @@ export default function SetupPage() {
         </button>
         {/*On success should redirect...*/}
       </Form>
-      <ul>
-        {pageData.images.map((imageUrl, i) => (
-          <li key={i}>
-            <img src={imageUrl} alt="" />
-          </li>
-        ))}
-      </ul>
     </>
   );
 }
