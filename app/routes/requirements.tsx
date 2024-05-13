@@ -27,13 +27,14 @@ const commonOptions = [
   "Car",
 ];
 
+const emptyMagnet = () => ({
+  id: uuidv4(),
+  name: "",
+  quantity: 1,
+});
+
 export default function Requirements() {
   const pageData = useLoaderData<typeof clientLoader>();
-  const emptyMagnet = () => ({
-    id: uuidv4(),
-    name: "",
-    quantity: 0,
-  });
   const [magnets, setMagnets] = useState([...pageData.magnets, emptyMagnet()]);
 
   function updateMagnet(newText: string, indexToUpdate: number) {
