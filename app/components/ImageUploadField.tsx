@@ -11,10 +11,15 @@ export function ImageUploadField({
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [imageKey, setImageKey] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  async function handleUpload(e: React.FormEvent) {
+  const imageRef = useRef<HTMLImageElement>(null);
+  async function handleUpload(
+    e: React.FormEvent | React.DragEvent,
+    drop: boolean = false
+  ) {
     e.preventDefault();
-    const files = fileInputRef.current?.files;
+    const files = drop
+      ? (e as React.DragEvent).dataTransfer.files
+      : fileInputRef.current?.files;
     if (files && files[0]) {
       const file = files[0];
       const formData = new FormData();
@@ -47,21 +52,50 @@ export function ImageUploadField({
       }
     }
   }
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault();
+  }
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    handleUpload(e, true);
+  }
 
   return (
-    <label>
+    <label className="border-t border-b border-gray-400 border-solid p-4 flex flex-col">
       {label}:
       {imageSrc && imageKey ? (
-        <>
-          <img src={imageSrc} alt="User uploaded background" />
+        <div className="h-auto max-w-[300px]">
+          <img src={imageSrc} alt="User uploaded background" ref={imageRef} />
+          <dl className="flex space-x-2">
+            <dt>Dimensions:</dt>
+            <dd>
+              {imageRef?.current?.naturalWidth ?? "width"}x
+              {imageRef?.current?.naturalHeight ?? "height"}
+            </dd>
+          </dl>
           <input type="hidden" name={name} value={imageKey} />
-        </>
+        </div>
       ) : (
         <>
-          <input type="file" ref={fileInputRef} accept="image/*" />
+          <div
+            onDragOver={(e) => handleDragOver(e)}
+            onDrop={(e) => {
+              handleDrop(e);
+            }}
+            className="w-[200px] h-[150px] border-dashed border rounded border-gray-400 flex flex-col items-center justify-center space-y-2 hover:cursor-pointer"
+          >
+            Select or drop image
+            <input
+              type="file"
+              id="imageInput"
+              ref={fileInputRef}
+              accept="image/*"
+              className="hidden"
+            />
+          </div>
           <button
             type="submit"
-            className="border-solid border-black border w-fit p-2"
+            className="border-solid border-black border w-fit p-1"
             onClick={handleUpload}
           >
             Upload
