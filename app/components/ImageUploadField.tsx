@@ -20,7 +20,6 @@ export function ImageUploadField({
     const files = drop
       ? (e as React.DragEvent).dataTransfer.files
       : fileInputRef.current?.files;
-    console.log(files);
     if (files && files[0]) {
       const file = files[0];
       const formData = new FormData();
@@ -55,11 +54,9 @@ export function ImageUploadField({
   }
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
-    console.log("dragged over");
   }
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
-    console.log("dropped", e);
     handleUpload(e, true);
   }
 
