@@ -1,6 +1,7 @@
 import { persistentAtom } from "@nanostores/persistent";
 
 export type Magnet = {
+  id: string;
   name: string;
   quantity: number;
   uploadKey?: string;
@@ -26,7 +27,3 @@ export const page = persistentAtom<Page>(
     decode: JSON.parse,
   }
 );
-
-page.listen((value, oldValue) => {
-  console.log("In store listener", value, oldValue);
-});
