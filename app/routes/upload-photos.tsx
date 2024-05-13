@@ -15,7 +15,6 @@ export async function clientLoader() {
 clientLoader.hydrate = true;
 
 export async function clientAction({ request }: ClientActionFunctionArgs) {
-  console.log("in client action");
   const pageData = await page.get();
   const body = await request.formData();
 

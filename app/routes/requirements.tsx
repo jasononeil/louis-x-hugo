@@ -54,7 +54,6 @@ export default function Requirements() {
   }
 
   function deleteMagnet(indexToDelete: number) {
-    console.log("magnets", magnets);
     const newMagnets = magnets.filter(
       (magnet, index) => index !== indexToDelete
     );
@@ -67,7 +66,6 @@ export default function Requirements() {
       ...pageData,
       magnets: newMagnets.filter((m) => m.name !== ""),
     });
-    console.log("newMagnets", newMagnets);
   }
 
   function clickCommonOption(option: string) {
