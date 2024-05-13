@@ -39,7 +39,11 @@ export default function DownloadOrPrint() {
           <li>{name}</li>
           <li>{weekStart}</li>
           <li>
-            <img src={background} alt="Uploaded background" />
+            {background ? (
+              <img src={background} alt="Uploaded background" />
+            ) : (
+              "No background"
+            )}
           </li>
         </ul>
       </details>
