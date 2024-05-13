@@ -59,7 +59,11 @@ export default function SetupPage() {
             <option value="monday">Monday</option>
           </select>
         </label>
-        <ImageUploadField label="Background" name="background" />
+        <ImageUploadField
+          label="Background"
+          name="background"
+          existingUploadKey={pageData.background || undefined}
+        />
         <button
           type="submit"
           className="border-solid border-black border w-fit p-2"

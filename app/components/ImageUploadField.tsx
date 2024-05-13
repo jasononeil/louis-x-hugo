@@ -1,17 +1,34 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getUploadUrl } from "../routes/get-upload-url";
+import { getDownloadUrl } from "~/routes/get-download-url";
 
 export function ImageUploadField({
   label,
   name,
+  existingUploadKey,
 }: {
   label: string;
   name: string;
+  existingUploadKey?: string;
 }) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [imageKey, setImageKey] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (existingUploadKey) {
+      setImageKey(existingUploadKey);
+      getDownloadUrl({
+        key: existingUploadKey,
+      })
+        .then(({ preSignedGetUrl }) => {
+          setImageSrc(preSignedGetUrl);
+        })
+        .catch((err) => console.error(`Error calling getDownloadUrl:`, err));
+    }
+  }, [existingUploadKey]);
+
   async function handleUpload(
     e: React.FormEvent | React.DragEvent,
     drop: boolean = false
