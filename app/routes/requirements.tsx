@@ -31,6 +31,19 @@ export default function Requirements() {
       magnets: newMagnets.filter((m) => m.name !== ""),
     });
   }
+
+  const commonOptions = [
+    "School",
+    "Grandparents",
+    "Therapy",
+    "Playground",
+    "Daycare",
+    "Church",
+    "example",
+    "test",
+    "anotherTest",
+  ];
+
   return (
     <div className="flex flex-col space-y-2 m-4">
       <Form>
@@ -44,11 +57,16 @@ export default function Requirements() {
             />
           ))}
         </ul>
-        <h2>Common options</h2>
-        <ul>
-          <li></li>
+        <h2 className="text-2xl font-bold">Common options</h2>
+        <ul className="flex flex-wrap gap-4">
+          {commonOptions.map((option) => (
+            <li>
+              <button className="p-2 border border-solid border-black rounded-xl">
+                {option}
+              </button>
+            </li>
+          ))}
         </ul>
-        <button type="submit">SUBMIT</button>
       </Form>
       <PageNav
         backTo="/setup-page"
