@@ -3,9 +3,7 @@ import {
   Form,
   useLoaderData,
   redirect,
-  ClientLoaderFunctionArgs,
 } from "@remix-run/react";
-import { getSignedUrlsForItemsInBucket } from "~/.server/s3";
 import { page } from "~/store/page.client";
 import { ImageUploadField } from "~/components/ImageUploadField";
 
@@ -31,24 +29,11 @@ function getStringFromFormData(
   // If the value was `null` or a `File` don't return anything
 }
 
-type ServerData = {
-  filesInBucket: string[];
-};
-
-/** The server side loader */
-export async function loader(): Promise<ServerData> {
-  return {
-    filesInBucket: await getSignedUrlsForItemsInBucket(),
-  };
-}
-
 /** The client side loader, which runs after hydrate. Data from the serverLoader (`loader()`) is also available. */
-export async function clientLoader({ serverLoader }: ClientLoaderFunctionArgs) {
+export async function clientLoader() {
   const pageData = page.get();
-  const serverData: ServerData = await serverLoader();
   return {
     ...pageData,
-    images: serverData.filesInBucket,
   };
 }
 clientLoader.hydrate = true;
