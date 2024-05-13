@@ -1,14 +1,47 @@
+import { Form, useLoaderData } from "@remix-run/react";
 import PageNav from "../components/PageNav";
 import { page } from "~/store/page.client";
+import { useState } from "react";
+
+/** The client side loader, which runs after hydrate. Data from the serverLoader (`loader()`) is also available. */
+export async function clientLoader() {
+  return page.get();
+}
+clientLoader.hydrate = true;
+
+export function HydrateFallback() {
+  return <p>Loading...</p>;
+}
 
 export default function Requirements() {
+  const pageData = useLoaderData<typeof clientLoader>();
+  const emptyMagnet = () => ({ name: "", quantity: 0 });
+  const [magnets, setMagnets] = useState([...pageData.magnets, emptyMagnet()]);
+  function updateMagnet(newText: string, indexToUpdate: number) {
+    const newMagnets = magnets.map((magnet, index) => ({
+      ...magnet,
+      name: index === indexToUpdate ? newText : magnet.name,
+    }));
+    if (newMagnets[newMagnets.length - 1].name !== "") {
+      newMagnets.push(emptyMagnet());
+    }
+    setMagnets(newMagnets);
+  }
   return (
     <div className="flex flex-col space-y-2 m-4">
-      <h1 className="text-4xl font-bold">What do you need magnets for?</h1>
-      <ul className="space-y-2">
-        <ListItem value="hello word" />
-        <ListItem />
-      </ul>
+      <Form>
+        <h1 className="text-4xl font-bold">What do you need magnets for?</h1>
+        <ul className="space-y-2">
+          {magnets.map((magnet, index) => (
+            <ListItem
+              value={magnet.name}
+              onChange={(text) => updateMagnet(text, index)}
+              key={index}
+            />
+          ))}
+        </ul>
+        <button type="submit">SUBMIT</button>
+      </Form>
       <PageNav
         backTo="/setup-page"
         nextTo="/upload-photos"
@@ -18,13 +51,20 @@ export default function Requirements() {
   );
 }
 
-function ListItem({ value = "" }) {
+function ListItem({
+  value = "",
+  onChange,
+}: {
+  value: string;
+  onChange: (name: string) => void;
+}) {
   return (
     <li>
       <input
         type="text"
         defaultValue={value}
         className="2xl border border-solid border-black rounded-2xl p-4 w-full"
+        onChange={(e) => onChange(e.currentTarget.value)}
       ></input>
     </li>
   );
