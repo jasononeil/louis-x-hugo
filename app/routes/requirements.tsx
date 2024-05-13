@@ -26,6 +26,10 @@ export default function Requirements() {
       newMagnets.push(emptyMagnet());
     }
     setMagnets(newMagnets);
+    page.set({
+      ...pageData,
+      magnets: newMagnets.filter((m) => m.name !== ""),
+    });
   }
   return (
     <div className="flex flex-col space-y-2 m-4">
@@ -39,6 +43,10 @@ export default function Requirements() {
               key={index}
             />
           ))}
+        </ul>
+        <h2>Common options</h2>
+        <ul>
+          <li></li>
         </ul>
         <button type="submit">SUBMIT</button>
       </Form>
