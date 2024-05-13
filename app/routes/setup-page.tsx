@@ -10,9 +10,10 @@ import { ImageUploadField } from "~/components/ImageUploadField";
 export async function clientAction({ request }: ClientActionFunctionArgs) {
   const body = await request.formData();
   const pageData = {
-    name: getStringFromFormData(body, "name"),
-    background: getStringFromFormData(body, "background"),
-    weekStart: getStringFromFormData(body, "weekStart"),
+    name: getStringFromFormData(body, "name") ?? "",
+    background: getStringFromFormData(body, "background") ?? null,
+    weekStart: getStringFromFormData(body, "weekStart") ?? "Sunday",
+    magnets: [],
   };
   page.set(pageData);
   return redirect("/requirements");
