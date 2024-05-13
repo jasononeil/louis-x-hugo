@@ -22,11 +22,13 @@
     "@remix-run/node": "^2.8.1",
     "@remix-run/react": "^2.8.1",
     "@remix-run/serve": "^2.8.1",
+    "@types/uuid": "^9.0.8",
     "isbot": "^4.1.0",
     "playwright": "^1.43.1",
     "prettier": "^3.2.5",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.8.1",

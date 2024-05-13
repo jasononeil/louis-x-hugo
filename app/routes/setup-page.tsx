@@ -6,27 +6,18 @@ import {
 } from "@remix-run/react";
 import { page } from "~/store/page.client";
 import { ImageUploadField } from "~/components/ImageUploadField";
+import { getStringFromFormData } from "~/utils/formUtils";
 
 export async function clientAction({ request }: ClientActionFunctionArgs) {
   const body = await request.formData();
   const pageData = {
-    name: getStringFromFormData(body, "name"),
-    background: getStringFromFormData(body, "background"),
-    weekStart: getStringFromFormData(body, "weekStart"),
+    name: getStringFromFormData(body, "name") ?? "",
+    background: getStringFromFormData(body, "background") ?? null,
+    weekStart: getStringFromFormData(body, "weekStart") ?? "Sunday",
+    magnets: [],
   };
   page.set(pageData);
   return redirect("/requirements");
-}
-
-function getStringFromFormData(
-  body: FormData,
-  field: string
-): string | undefined {
-  const value = body.get(field);
-  if (typeof value === "string") {
-    return value;
-  }
-  // If the value was `null` or a `File` don't return anything
 }
 
 /** The client side loader, which runs after hydrate. Data from the serverLoader (`loader()`) is also available. */
@@ -68,14 +59,17 @@ export default function SetupPage() {
             <option value="monday">Monday</option>
           </select>
         </label>
-        <ImageUploadField label="Background" name="background" />
+        <ImageUploadField
+          label="Background"
+          name="background"
+          existingUploadKey={pageData.background || undefined}
+        />
         <button
           type="submit"
           className="border-solid border-black border w-fit p-2"
         >
           Submit
         </button>
-        {/*On success should redirect...*/}
       </Form>
     </>
   );
