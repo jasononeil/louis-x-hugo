@@ -15,15 +15,16 @@ export function HydrateFallback() {
 }
 
 const commonOptions = [
+  "Home",
+  "Mum's house",
+  "Dad's house",
   "School",
+  "Daycare",
+  "Playground",
   "Grandparents",
   "Therapy",
-  "Playground",
-  "Daycare",
   "Church",
-  "example",
-  "test",
-  "anotherTest",
+  "Car",
 ];
 
 export default function Requirements() {
@@ -82,6 +83,10 @@ export default function Requirements() {
     <div className="flex flex-col space-y-2 m-4">
       <Form>
         <h1 className="text-4xl font-bold">What do you need magnets for?</h1>
+        <p>
+          Think of the different magnets you want, and on the next page you can
+          upload photos and choose how many.
+        </p>
         <ul className="space-y-2">
           {magnets.map((magnet, index) => (
             <ListItem
