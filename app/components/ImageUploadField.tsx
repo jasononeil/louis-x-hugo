@@ -108,6 +108,7 @@ export function ImageUploadField({
               ref={fileInputRef}
               accept="image/*"
               className="hidden"
+              onChange={handleUpload}
             />
           </div>
           <button
