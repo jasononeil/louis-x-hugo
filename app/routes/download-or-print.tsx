@@ -3,7 +3,7 @@ import PageNav from "~/components/PageNav";
 import { page } from "~/store/page.client";
 import { getDownloadUrl } from "./get-download-url";
 import { splitEvery, repeat } from "ramda";
-import { MagnetGrid } from "~/components/MagnetGrid";
+import { MagnetGrid, MagnetImage } from "~/components/MagnetGrid";
 
 /** The client side loader, which runs after hydrate. Data from the serverLoader (`loader()`) is also available. */
 export async function clientLoader() {
@@ -14,14 +14,21 @@ export async function clientLoader() {
   const presignedBackground =
     background && (await getDownloadUrl({ key: background })).preSignedGetUrl;
 
-  const presignedMagnets = await Promise.all(
-    magnets.map(async (m) => ({
-      ...m,
-      presignedUrl: m.uploadKey
-        ? (await getDownloadUrl({ key: m.uploadKey })).preSignedGetUrl
-        : null,
-    }))
-  );
+  const presignedMagnets: Array<MagnetImage> = (
+    await Promise.all(
+      magnets.map(async (m) => {
+        if (!m.uploadKey) return null;
+        const url = await getDownloadUrl({ key: m.uploadKey });
+        return {
+          ...m,
+          presignedUrl: url.preSignedGetUrl,
+        };
+      })
+    )
+  )
+    // Note: this type assertion won't be needed in Typescript 5.5
+    // https://devblogs.microsoft.com/typescript/announcing-typescript-5-5-beta/#inferred-type-predicates
+    .filter((m): m is MagnetImage => m !== null);
 
   return {
     name,
@@ -90,15 +97,7 @@ export default function DownloadOrPrint() {
   );
 }
 
-function PrintAllGrids({
-  magnets,
-}: {
-  magnets: Array<{
-    presignedUrl: string | null;
-    name: string;
-    quantity: number;
-  }>;
-}) {
+function PrintAllGrids({ magnets }: { magnets: Array<MagnetImage> }) {
   const allImages = magnets.flatMap((magnet) =>
     repeat(magnet, magnet.quantity)
   );
