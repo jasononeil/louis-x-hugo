@@ -2,8 +2,8 @@ import { useLoaderData } from "@remix-run/react";
 import PageNav from "~/components/PageNav";
 import { page } from "~/store/page.client";
 import { getDownloadUrl } from "./get-download-url";
-import { splitEvery, repeat } from "ramda";
-import { MagnetGrid, MagnetImage } from "~/components/MagnetGrid";
+import { MagnetGrid } from "~/components/MagnetGrid";
+import { setupMagnetGroups, SignedMagnet } from "~/store/Magnet";
 
 /** The client side loader, which runs after hydrate. Data from the serverLoader (`loader()`) is also available. */
 export async function clientLoader() {
@@ -14,7 +14,7 @@ export async function clientLoader() {
   const presignedBackground =
     background && (await getDownloadUrl({ key: background })).preSignedGetUrl;
 
-  const presignedMagnets: Array<MagnetImage> = (
+  const presignedMagnets: Array<SignedMagnet> = (
     await Promise.all(
       magnets.map(async (m) => {
         if (!m.uploadKey) return null;
@@ -28,19 +28,20 @@ export async function clientLoader() {
   )
     // Note: this type assertion won't be needed in Typescript 5.5
     // https://devblogs.microsoft.com/typescript/announcing-typescript-5-5-beta/#inferred-type-predicates
-    .filter((m): m is MagnetImage => m !== null);
+    .filter((m): m is SignedMagnet => m !== null);
 
   return {
     name,
     weekStart,
     background: presignedBackground,
-    magnets: presignedMagnets,
+    magnets,
+    presignedMagnets,
   };
 }
 clientLoader.hydrate = true;
 
 export default function DownloadOrPrint() {
-  const { name, weekStart, background, magnets } =
+  const { name, weekStart, background, magnets, presignedMagnets } =
     useLoaderData<typeof clientLoader>();
   const params = new URLSearchParams({
     pageTitle: name || "Weekly Plan",
@@ -68,7 +69,7 @@ export default function DownloadOrPrint() {
           <li>
             Magnets:
             <ul>
-              {magnets.map((magnet) => (
+              {presignedMagnets.map((magnet) => (
                 <li key={magnet.id}>
                   {magnet.name}, {magnet.quantity}, {magnet.uploadKey}
                   {magnet.presignedUrl && (
@@ -80,7 +81,14 @@ export default function DownloadOrPrint() {
           </li>
         </ul>
       </details>
-      <PrintAllGrids magnets={magnets} />
+      <ul>
+        {setupMagnetGroups(magnets).map((imagesForGrid, i) => (
+          <li key={i}>{imagesForGrid.length}</li>
+        ))}
+      </ul>
+      {setupMagnetGroups(presignedMagnets).map((images, i) => (
+        <MagnetGrid key={i} images={images} />
+      ))}
       <a href={pdfUrl}>PDF Download</a>
       <iframe
         src={pdfUrl}
@@ -95,14 +103,4 @@ export default function DownloadOrPrint() {
       />
     </>
   );
-}
-
-function PrintAllGrids({ magnets }: { magnets: Array<MagnetImage> }) {
-  const allImages = magnets.flatMap((magnet) =>
-    repeat(magnet, magnet.quantity)
-  );
-  const gridsOfImages = splitEvery(9)(allImages);
-  return gridsOfImages.map((images, i) => (
-    <MagnetGrid key={i} images={images} />
-  ));
 }

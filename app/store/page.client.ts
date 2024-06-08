@@ -1,11 +1,5 @@
 import { persistentAtom } from "@nanostores/persistent";
-
-export type Magnet = {
-  id: string;
-  name: string;
-  quantity: number;
-  uploadKey?: string;
-};
+import { Magnet } from "./Magnet";
 
 export type Page = {
   name: string;
