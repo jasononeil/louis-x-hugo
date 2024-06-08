@@ -10,11 +10,12 @@ import { getStringFromFormData } from "~/utils/formUtils";
 
 export async function clientAction({ request }: ClientActionFunctionArgs) {
   const body = await request.formData();
+  const oldPageData = page.get();
   const pageData = {
     name: getStringFromFormData(body, "name") ?? "",
     background: getStringFromFormData(body, "background") ?? null,
     weekStart: getStringFromFormData(body, "weekStart") ?? "Sunday",
-    magnets: [],
+    magnets: oldPageData.magnets,
   };
   page.set(pageData);
   return redirect("/requirements");
