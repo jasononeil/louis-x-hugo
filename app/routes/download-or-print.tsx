@@ -51,6 +51,7 @@ export default function DownloadOrPrint() {
     bgImage: background || "https://picsum.photos/id/17/3000/2000",
   }).toString();
   const pdfUrl = `/preview-plan.pdf?${params}`;
+  const pngUrl = `/preview-plan.png?${params}`;
   return (
     <>
       <h1>Print With Us</h1>
@@ -99,7 +100,12 @@ export default function DownloadOrPrint() {
           <MagnetGrid images={images} />
         </div>
       ))}
-      <a href={pdfUrl}>PDF Download</a>
+      <a href={pngUrl} download={true}>
+        PNG Download
+      </a>
+      <a href={pdfUrl} download={true}>
+        PDF Download
+      </a>
       <iframe
         src={pdfUrl}
         width="800"
