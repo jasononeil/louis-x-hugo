@@ -6,7 +6,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const svgUrl = new URL(request.url);
   svgUrl.pathname = "preview-plan.svg";
 
-  const png = await generatePngFromUrl(svgUrl.toString());
+  const png = await generatePngFromUrl({
+    url: svgUrl.toString(),
+    widthInMM: 300,
+    heightInMM: 200,
+  });
   return new Response(png, {
     status: 200,
     headers: {

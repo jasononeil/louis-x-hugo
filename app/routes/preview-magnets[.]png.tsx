@@ -9,10 +9,14 @@ Use `getPreviewMagnetPngUrl()` to generate correct URLs
 */
 export async function loader({ request }: LoaderFunctionArgs) {
   // Get the same URL, with the query parameters, except `preview-magnets` instead of `preview-magnets.png`
-  const svgUrl = new URL(request.url);
-  svgUrl.pathname = "preview-magnets";
+  const previewUrl = new URL(request.url);
+  previewUrl.pathname = "preview-magnets";
 
-  const png = await generatePngFromUrl(svgUrl.toString());
+  const png = await generatePngFromUrl({
+    url: previewUrl.toString(),
+    widthInMM: 125,
+    heightInMM: 125,
+  });
   return new Response(png, {
     status: 200,
     headers: {
