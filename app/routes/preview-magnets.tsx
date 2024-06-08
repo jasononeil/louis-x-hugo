@@ -2,7 +2,7 @@ import { useLoaderData } from "@remix-run/react";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { memoizeWith } from "ramda";
 import { getSignedUrlForItem } from "~/.server/s3";
-import { Magnet, SignedMagnet } from "~/store/Magnet";
+import { Magnet, SignedMagnet, getUrlParamsForMagnets } from "~/store/Magnet";
 import { MagnetGrid } from "~/components/MagnetGrid";
 
 /**
@@ -19,10 +19,7 @@ export default function PreviewMagnets() {
 
 /** Generate a preview URL for this page with given magnet data in search parameters */
 export function getPreviewMagnetUrl(magnets: Array<Magnet>) {
-  const params = new URLSearchParams();
-  for (const m of magnets) {
-    params.append("magnets", JSON.stringify(m));
-  }
+  const params = getUrlParamsForMagnets(magnets);
   return `/preview-magnets?${params.toString()}`;
 }
 

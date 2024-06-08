@@ -22,3 +22,12 @@ export function setupMagnetGroups<T extends Magnet>(magnets: Array<T>) {
   );
   return splitEvery(9)(allImages);
 }
+
+/** Get URL parameters of these magnets. Used for generating URLs to magnet previews. */
+export function getUrlParamsForMagnets(magnets: Array<Magnet>) {
+  const params = new URLSearchParams();
+  for (const m of magnets) {
+    params.append("magnets", JSON.stringify(m));
+  }
+  return params;
+}
