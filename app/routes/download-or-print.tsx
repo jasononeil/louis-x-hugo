@@ -2,6 +2,10 @@ import { useLoaderData } from "@remix-run/react";
 import PageNav from "~/components/PageNav";
 import { page } from "~/store/page.client";
 import { getDownloadUrl } from "./get-download-url";
+import { MagnetGrid } from "~/components/MagnetGrid";
+import { getPreviewMagnetUrl } from "./preview-magnets";
+import { setupMagnetGroups, SignedMagnet } from "~/store/Magnet";
+import { getPreviewMagnetPngUrl } from "./preview-magnets[.]png";
 
 /** The client side loader, which runs after hydrate. Data from the serverLoader (`loader()`) is also available. */
 export async function clientLoader() {
@@ -12,26 +16,34 @@ export async function clientLoader() {
   const presignedBackground =
     background && (await getDownloadUrl({ key: background })).preSignedGetUrl;
 
-  const presignedMagnets = await Promise.all(
-    magnets.map(async (m) => ({
-      ...m,
-      presignedUrl: m.uploadKey
-        ? (await getDownloadUrl({ key: m.uploadKey })).preSignedGetUrl
-        : null,
-    }))
-  );
+  const presignedMagnets: Array<SignedMagnet> = (
+    await Promise.all(
+      magnets.map(async (m) => {
+        if (!m.uploadKey) return null;
+        const url = await getDownloadUrl({ key: m.uploadKey });
+        return {
+          ...m,
+          presignedUrl: url.preSignedGetUrl,
+        };
+      })
+    )
+  )
+    // Note: this type assertion won't be needed in Typescript 5.5
+    // https://devblogs.microsoft.com/typescript/announcing-typescript-5-5-beta/#inferred-type-predicates
+    .filter((m): m is SignedMagnet => m !== null);
 
   return {
     name,
     weekStart,
     background: presignedBackground,
-    magnets: presignedMagnets,
+    magnets,
+    presignedMagnets,
   };
 }
 clientLoader.hydrate = true;
 
 export default function DownloadOrPrint() {
-  const { name, weekStart, background, magnets } =
+  const { name, weekStart, background, magnets, presignedMagnets } =
     useLoaderData<typeof clientLoader>();
   const params = new URLSearchParams({
     pageTitle: name || "Weekly Plan",
@@ -39,6 +51,7 @@ export default function DownloadOrPrint() {
     bgImage: background || "https://picsum.photos/id/17/3000/2000",
   }).toString();
   const pdfUrl = `/preview-plan.pdf?${params}`;
+  const pngUrl = `/preview-plan.png?${params}`;
   return (
     <>
       <h1>Print With Us</h1>
@@ -59,7 +72,7 @@ export default function DownloadOrPrint() {
           <li>
             Magnets:
             <ul>
-              {magnets.map((magnet) => (
+              {presignedMagnets.map((magnet) => (
                 <li key={magnet.id}>
                   {magnet.name}, {magnet.quantity}, {magnet.uploadKey}
                   {magnet.presignedUrl && (
@@ -71,7 +84,28 @@ export default function DownloadOrPrint() {
           </li>
         </ul>
       </details>
-      <a href={pdfUrl}>PDF Download</a>
+      <ul>
+        {setupMagnetGroups(magnets).map((imagesForGrid, i) => (
+          <li key={i}>
+            Link to:
+            <a href={getPreviewMagnetUrl(imagesForGrid)}>Preview</a>
+            <a href={getPreviewMagnetPngUrl(imagesForGrid)} download={true}>
+              Download PNG
+            </a>
+          </li>
+        ))}
+      </ul>
+      {setupMagnetGroups(presignedMagnets).map((images, i) => (
+        <div key={i} className="border-2">
+          <MagnetGrid images={images} />
+        </div>
+      ))}
+      <a href={pngUrl} download={true}>
+        PNG Download
+      </a>
+      <a href={pdfUrl} download={true}>
+        PDF Download
+      </a>
       <iframe
         src={pdfUrl}
         width="800"
