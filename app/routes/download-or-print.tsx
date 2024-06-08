@@ -3,6 +3,7 @@ import PageNav from "~/components/PageNav";
 import { page } from "~/store/page.client";
 import { getDownloadUrl } from "./get-download-url";
 import { MagnetGrid } from "~/components/MagnetGrid";
+import { getPreviewMagnetUrl } from "./preview-magnets";
 import { setupMagnetGroups, SignedMagnet } from "~/store/Magnet";
 
 /** The client side loader, which runs after hydrate. Data from the serverLoader (`loader()`) is also available. */
@@ -83,7 +84,9 @@ export default function DownloadOrPrint() {
       </details>
       <ul>
         {setupMagnetGroups(magnets).map((imagesForGrid, i) => (
-          <li key={i}>{imagesForGrid.length}</li>
+          <li key={i}>
+            <a href={getPreviewMagnetUrl(imagesForGrid)}>Link to grid {i}</a>
+          </li>
         ))}
       </ul>
       {setupMagnetGroups(presignedMagnets).map((images, i) => (
