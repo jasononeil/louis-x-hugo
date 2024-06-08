@@ -3,6 +3,7 @@ import PageNav from "~/components/PageNav";
 import { page } from "~/store/page.client";
 import { getDownloadUrl } from "./get-download-url";
 import { splitEvery, repeat } from "ramda";
+import { MagnetGrid } from "~/components/MagnetGrid";
 
 /** The client side loader, which runs after hydrate. Data from the serverLoader (`loader()`) is also available. */
 export async function clientLoader() {
@@ -105,24 +106,4 @@ function PrintAllGrids({
   return gridsOfImages.map((images, i) => (
     <MagnetGrid key={i} images={images} />
   ));
-}
-
-function MagnetGrid({
-  images,
-}: {
-  images: Array<{ presignedUrl: string | null; name: string }>;
-}) {
-  return (
-    <ul className="grid grid-cols-3 grid-rows-3 place-content-around aspect-square w-[125mm] gap-[6mm] p-[3mm] m-3 bg-white border-2">
-      {images.map((magnet, i) => (
-        <li key={i} className="bg-black relative overflow-clip">
-          <img
-            src={magnet.presignedUrl || "BROKE"}
-            alt={magnet.name}
-            className="absolute inset-0 object-cover w-full h-full"
-          />
-        </li>
-      ))}
-    </ul>
-  );
 }
