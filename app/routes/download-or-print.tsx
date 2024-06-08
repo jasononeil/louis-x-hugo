@@ -5,6 +5,7 @@ import { getDownloadUrl } from "./get-download-url";
 import { MagnetGrid } from "~/components/MagnetGrid";
 import { getPreviewMagnetUrl } from "./preview-magnets";
 import { setupMagnetGroups, SignedMagnet } from "~/store/Magnet";
+import { getPreviewMagnetPngUrl } from "./preview-magnets[.]png";
 
 /** The client side loader, which runs after hydrate. Data from the serverLoader (`loader()`) is also available. */
 export async function clientLoader() {
@@ -85,7 +86,11 @@ export default function DownloadOrPrint() {
       <ul>
         {setupMagnetGroups(magnets).map((imagesForGrid, i) => (
           <li key={i}>
-            <a href={getPreviewMagnetUrl(imagesForGrid)}>Link to grid {i}</a>
+            Link to:
+            <a href={getPreviewMagnetUrl(imagesForGrid)}>Preview</a>
+            <a href={getPreviewMagnetPngUrl(imagesForGrid)} download={true}>
+              Download PNG
+            </a>
           </li>
         ))}
       </ul>
