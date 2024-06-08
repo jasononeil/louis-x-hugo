@@ -3,6 +3,7 @@ import { LoaderFunctionArgs } from "@remix-run/node";
 import { memoizeWith } from "ramda";
 import { getSignedUrlForItem } from "~/.server/s3";
 import { Magnet, SignedMagnet } from "~/store/Magnet";
+import { MagnetGrid } from "~/components/MagnetGrid";
 
 /**
 This page displays a 3x3 magnet grid.
@@ -13,8 +14,7 @@ Use `getPreviewMagnetUrl()` to generate a correctly formatted URL for this page.
 */
 export default function PreviewMagnets() {
   const { images } = useLoaderData<typeof loader>();
-  return <p>Images: {images.map((m) => m.name).join(",")}</p>;
-  // return <MagnetGrid images={[]} />;
+  return <MagnetGrid images={images} />;
 }
 
 /** Generate a preview URL for this page with given magnet data in search parameters */

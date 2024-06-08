@@ -90,7 +90,9 @@ export default function DownloadOrPrint() {
         ))}
       </ul>
       {setupMagnetGroups(presignedMagnets).map((images, i) => (
-        <MagnetGrid key={i} images={images} />
+        <div key={i} className="border-2">
+          <MagnetGrid images={images} />
+        </div>
       ))}
       <a href={pdfUrl}>PDF Download</a>
       <iframe
