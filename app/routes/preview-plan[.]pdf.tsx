@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { chromium, devices } from "playwright";
+import { generatePdfFromUrl } from "~/utils/playwright";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   // Get the same URL, with the query parameters, except `preview-plan.svg` instead of `preview-plan.pdf`
@@ -13,15 +13,4 @@ export async function loader({ request }: LoaderFunctionArgs) {
       "Content-Type": "application/pdf",
     },
   });
-}
-
-async function generatePdfFromUrl(url: string) {
-  const browser = await chromium.launch();
-  const context = await browser.newContext(devices["Desktop Chrome"]);
-  const page = await context.newPage();
-  await page.goto(url);
-  const pdfBuffer = await page.pdf({ width: "30cm", height: "20cm" });
-  await context.close();
-  await browser.close();
-  return pdfBuffer;
 }

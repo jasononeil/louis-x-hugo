@@ -29,6 +29,19 @@ export function ImageUploadField({
     }
   }, [existingUploadKey]);
 
+  // Prevent drag/drop from navigating away from the page
+  useEffect(() => {
+    function preventDefault(e: DragEvent) {
+      e.preventDefault();
+    }
+    document.addEventListener("dragover", preventDefault);
+    document.addEventListener("drop", preventDefault);
+    return () => {
+      document.removeEventListener("dragover", preventDefault);
+      document.removeEventListener("drop", preventDefault);
+    };
+  }, []);
+
   async function handleUpload(
     e: React.FormEvent | React.DragEvent,
     drop: boolean = false
@@ -69,16 +82,23 @@ export function ImageUploadField({
       }
     }
   }
+
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
   }
+
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
     handleUpload(e, true);
   }
 
+  function removeUpload() {
+    setImageKey(null);
+    setImageSrc(null);
+  }
+
   return (
-    <label className="border-t border-b border-gray-400 border-solid p-4 flex flex-col">
+    <div className="border-t border-b border-gray-400 border-solid p-4 flex flex-col">
       {label}:
       {imageSrc && imageKey ? (
         <div className="h-auto max-w-[300px]">
@@ -91,6 +111,12 @@ export function ImageUploadField({
             </dd>
           </dl>
           <input type="hidden" name={name} value={imageKey} />
+          <button
+            onClick={() => removeUpload()}
+            className="border-solid border-black border w-fit p-1"
+          >
+            Remove photo
+          </button>
         </div>
       ) : (
         <>
@@ -120,6 +146,6 @@ export function ImageUploadField({
           </button>
         </>
       )}
-    </label>
+    </div>
   );
 }
