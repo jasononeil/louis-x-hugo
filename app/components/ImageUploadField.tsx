@@ -29,6 +29,19 @@ export function ImageUploadField({
     }
   }, [existingUploadKey]);
 
+  // Prevent drag/drop from navigating away from the page
+  useEffect(() => {
+    function preventDefault(e: DragEvent) {
+      e.preventDefault();
+    }
+    document.addEventListener("dragover", preventDefault);
+    document.addEventListener("drop", preventDefault);
+    return () => {
+      document.removeEventListener("dragover", preventDefault);
+      document.removeEventListener("drop", preventDefault);
+    };
+  }, []);
+
   async function handleUpload(
     e: React.FormEvent | React.DragEvent,
     drop: boolean = false
@@ -69,9 +82,11 @@ export function ImageUploadField({
       }
     }
   }
+
   function handleDragOver(e: React.DragEvent) {
     e.preventDefault();
   }
+
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
     handleUpload(e, true);
